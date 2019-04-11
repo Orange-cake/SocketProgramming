@@ -1,4 +1,5 @@
-import java.net.Socket;
+import java.net.*;
+import java.io.*;
 
 public class ServerDriver{
     public static void main(String[] args){
@@ -14,7 +15,7 @@ public class ServerDriver{
                 "Was it a car or a cat I saw"
         };
 
-        for(int i =0; i < testStrings.length;i++){
+        for(int i =0; i < testStrings.length; i++){
             System.out.println(checkPalindrome(testStrings[i], true));
         }
     }

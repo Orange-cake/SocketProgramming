@@ -1,50 +1,48 @@
 import java.net.*;
 import java.io.*;
 
-public class GreetingServer extends Thread {
+public class Server extends Thread {
 	private ServerSocket serverSocket;
+	int port;
+	String lastInput;
+	String lastOutput;
+	final String DISCONNECT_DELIM = "END";
 
-	public GreetingServer(int port, int timeout) throws IOException {
+	public Server(int port, int timeout) throws IOException {
 		serverSocket = new ServerSocket(port);
 		serverSocket.setSoTimeout(10000);
+		this.port = port;
+		log("Running with timeout: " + timeout);
 	}
-	public GreetingServer(int port) throws IOException{
-		GreetingServer(port, 10000);
+	public Server(int port) throws IOException{	//Set default timeout if none specified
+		this(port, 10000);
 	}
 
-	public void run() {
-		while(true) {
-			try {
-				System.out.println("Waiting for client on port " +
-						serverSocket.getLocalPort() + "...");
-				Socket server = serverSocket.accept();
+	public void run(){
+		try{
+			Boolean sentinel = true;
+			log("Waiting for client on port " + serverSocket.getLocalPort() + "...");
+			Socket server = serverSocket.accept();	//Hangs here waiting for connection
+			log("Just connected to " + server.getRemoteSocketAddress());
 
-				System.out.println("Just connected to " + server.getRemoteSocketAddress());
-				DataInputStream in = new DataInputStream(server.getInputStream());
+			DataInputStream in = new DataInputStream(server.getInputStream());
+			DataOutputStream out = new DataOutputStream(server.getOutputStream());
 
-				System.out.println(in.readUTF());
-				DataOutputStream out = new DataOutputStream(server.getOutputStream());
-				out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-						+ "\nGoodbye!");
-				server.close();
-
-			} catch (SocketTimeoutException s) {
-				System.out.println("Socket timed out!");
-				break;
-			} catch (IOException e) {
-				e.printStackTrace();
-				break;
+			while(sentinel){
+				lastInput = in.readUTF();
+				log("Received message: " + lastInput);
+				if(lastInput.equals(DISCONNECT_DELIM)){
+					log("Delim received, closing socket...");
+					server.close();
+				}else{
+					out.writeUTF("Received message: \'" + lastInput + "\'");
+				}
 			}
-		}
+		}catch(SocketTimeoutException s){ 	log("Socket timed out");
+		}catch(SocketException s){			log("Socket closed");
+		}catch(IOException e){				e.printStackTrace();}
+
 	}
 
-	public static void main(String [] args) {
-		int port = Integer.parseInt(args[0]);
-		try {
-			Thread t = new GreetingServer(port);
-			t.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	void log(String msg){ System.out.println("[Server @ " + new java.sql.Timestamp(System.currentTimeMillis()) + "] " + msg); }
 }
