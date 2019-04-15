@@ -1,6 +1,6 @@
 # SocketProgramming
 ### CIS 419.01 Socket Programming Partner Project
-
+Code by John Heinlein, testing by Ian Charissis
 ## How to Use:
 
 ### TestDriver
@@ -22,7 +22,7 @@ Usage: java ServerDriver port [-v] [-t] [-time=timeout]
 		   -t: Enable timestamps in logs
 	-time=timeout: Enable a timeout of "timeout" milliseconds of no input before the socket is closed. Defualts to no timeout.
 ```
-
+The server object implements Thread and functions properly in my cursory testing of having a multithreaded driver, but this is yet unimplemented.
 ### ClientDriver
 ```
 Usage: java ClientDriver address port [-v] [-t]
