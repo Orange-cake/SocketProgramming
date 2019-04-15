@@ -1,7 +1,10 @@
 import java.net.*;
 import java.io.*;
 
-//TODO: Break into methods for the UI to hook into
+/**
+ * Client that connects to server on given address and port
+ * TODO: Handle multiple connections
+ */
 public class Client{
 	private String 	name;
 	private int 	port;
@@ -35,7 +38,12 @@ public class Client{
 		}catch(IOException e){ e.printStackTrace(); }
 	}
 
-	//TODO: Make byte array for the sake of sending delim; read as ASCII if not delim
+	/**
+	 * Sends a string to server
+	 * @param message UTF-8 String to send to server
+	 * @throws IOException
+	 */
+	//TODO: Make byte array for the sake of sending delim; read as ASCII if not delim?
 	public void send(String message)throws IOException{
 		try{
 			log("Writing to server...");
@@ -50,6 +58,28 @@ public class Client{
 		}catch(IOException e){ e.printStackTrace(); }
 	}
 
+	/* TODO: Might finish later?
+	public void send(byte[] bytes)throws IOException{
+		try{
+			InputStream fromServer = client.getInputStream();
+			DataInputStream in = new DataInputStream(fromServer);
+
+			log("Telling server to expect " + bytes.length + " bytes");
+			out.write(bytes.length);
+
+			log("Waiting for acknowledgement of " + bytes.length + " bytes");
+			String ack = in.readUTF();
+			if(!ack.equals("ACK")){
+				log("\tServer did not acknowledge, terminating send");
+				return;
+			}
+			log("Ack received");
+			log("Writing " + bytes.length + " bytes to server...");
+			out.write(bytes, 0, bytes.length);
+			log("\tWrote" + bytes.length + " bytes to server");
+		}catch(IOException e){e.printStackTrace();}
+	}
+	*/
 	public void disconnect()throws IOException{
 		try{
 			log("Disconnecting from server...");
@@ -59,5 +89,7 @@ public class Client{
 		}catch(IOException e){e.printStackTrace();}
 	}
 	//TODO: Separate output stream for UI logging? i.e. not standard out
-	private void log(String msg){ System.out.println("[Client @ " + new java.sql.Timestamp(System.currentTimeMillis()) + "] " + msg); }
+	private void log(String msg){
+		System.out.println("["+new java.sql.Timestamp(System.currentTimeMillis()) +" Client] "+msg);
+	}
 }
