@@ -1,8 +1,28 @@
+/**
+ * @author John Heinlein
+ */
 import java.io.IOException;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class TestDriver{
 	public static void main(String[] args)throws IOException{
+		List<String> cmdargs = Arrays.asList(args);
+		Boolean sentinel;
+
 		int TEST_PORT = 6066;
+		int argsPort = TEST_PORT;
+
+		if(args.length > 0){
+			try{
+				argsPort = Integer.parseInt(args[0].substring(6));
+			}catch(NumberFormatException e){
+				System.out.println("Command-line port is not valid.\njava TestDriver Port [-v] [-t]");
+				System.exit(1);
+			}
+		}
+
 		String[] testStrings = new String[]{
 				"Acrobats stab orca",
 				"poor guy dump",
@@ -13,24 +33,37 @@ public class TestDriver{
 				"123454321",
 				"Was it a car or a cat I saw"
 		};
-		/*
-		for(int i =0; i < testStrings.length; i++){
-            System.out.println(PalindromeChecker.checkPalindrome(testStrings[i], true));
-        }
-		 */
+
 		try{
-			Thread t = new ServerThread(TEST_PORT);
-			t.start();
+			/*
+			PalindromeCheckerServer server = new PalindromeCheckerServer(TEST_PORT);
+			PalindromeCheckerClient client = new PalindromeCheckerClient("localhost", TEST_PORT);
+			*/
+
+			PalindromeCheckerServer server = new PalindromeCheckerServer(argsPort);
+			PalindromeCheckerClient client = new PalindromeCheckerClient("localhost", argsPort);
+
+			if(cmdargs.contains(new String("-v"))){
+				server.verbose(true);
+				client.verbose(true);
+			}
+			if(cmdargs.contains(new String("-t"))){
+				server.useTimestamps(true);
+				client.useTimestamps(true);
+			}
+
+			server.start();
+			client.connect();
+
+			for(int i = 0; i < testStrings.length; i++){
+				client.send(testStrings[i]);
+			}
+
+			client.disconnect();
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 
-		Client client = new Client("localhost", TEST_PORT);
-		client.connect();
-		for(int i = 0; i < testStrings.length; i++){
-			client.send(testStrings[i]);
-		}
-		//TODO: Change IO to byte string, see number of 0's as disconnection?
-		client.disconnect();
+
 	}
 }

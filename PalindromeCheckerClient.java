@@ -1,40 +1,45 @@
+/**
+ * @author John Heinlein
+ */
 import java.net.*;
 import java.io.*;
+import java.sql.Timestamp;
 
 /**
- * Client that connects to server on given address and port
- * TODO: Handle multiple connections
+ * PalindromeCheckerClient that connects to server on given address and port
  */
-public class Client{
-	private String 	name;
-	private int 	port;
-	private Socket 	client;
+public class PalindromeCheckerClient{
+	private String 				name;
+	private int 				port;
+	private Socket 				client;
 	private DataOutputStream 	out;
 	private DataInputStream 	in;
 	private final String 		DISCONNECT_DELIM;
+	private Boolean 			timestamps = false;
+	private Boolean 			verbose = false;
 
-	public Client(String serverName, int serverPort, String delim){
+	public PalindromeCheckerClient(String serverName, int serverPort, String delim){
 		this.name = serverName;
 		this.port = serverPort;
 		this.DISCONNECT_DELIM = delim;
 	}
-	public Client(String serverName, int serverPort){
+	public PalindromeCheckerClient(String serverName, int serverPort){
 		this(serverName, serverPort, "END");
 	}
 
 	public void connect()throws IOException{
 		try{
-			log("Connecting to " + this.name + " on port " + this.port);
+			logv("Connecting to " + this.name + " on port " + this.port);
 			client = new Socket(this.name, this.port);
 			log("Connected to " + client.getRemoteSocketAddress());
 
 			OutputStream toServer = client.getOutputStream();
 			out = new DataOutputStream(toServer);
-			log("Created DataOutputStream to send to server");
+			logv("Created DataOutputStream to send to server");
 
 			InputStream fromServer = client.getInputStream();
 			in = new DataInputStream(fromServer);
-			log("Created DataInputStream to receive from server");
+			logv("Created DataInputStream to receive from server");
 		}catch(IOException e){ e.printStackTrace(); }
 	}
 
@@ -43,53 +48,48 @@ public class Client{
 	 * @param message UTF-8 String to send to server
 	 * @throws IOException
 	 */
-	//TODO: Make byte array for the sake of sending delim; read as ASCII if not delim?
 	public void send(String message)throws IOException{
 		try{
-			log("Writing to server...");
+			log("Writing '" + message + "' to server...");
 			out.writeUTF(message);
-			log("Wrote to server");
+			logv("Wrote: '" + message + "'");
 
 			InputStream fromServer = client.getInputStream();
 			DataInputStream in = new DataInputStream(fromServer);
 
 			String lastRead = in.readUTF();
-			log("Server reply: " + lastRead);
+			log("Server reply: '" + lastRead + "'");
 		}catch(IOException e){ e.printStackTrace(); }
 	}
 
-	/* TODO: Might finish later?
-	public void send(byte[] bytes)throws IOException{
-		try{
-			InputStream fromServer = client.getInputStream();
-			DataInputStream in = new DataInputStream(fromServer);
-
-			log("Telling server to expect " + bytes.length + " bytes");
-			out.write(bytes.length);
-
-			log("Waiting for acknowledgement of " + bytes.length + " bytes");
-			String ack = in.readUTF();
-			if(!ack.equals("ACK")){
-				log("\tServer did not acknowledge, terminating send");
-				return;
-			}
-			log("Ack received");
-			log("Writing " + bytes.length + " bytes to server...");
-			out.write(bytes, 0, bytes.length);
-			log("\tWrote" + bytes.length + " bytes to server");
-		}catch(IOException e){e.printStackTrace();}
-	}
-	*/
 	public void disconnect()throws IOException{
 		try{
-			log("Disconnecting from server...");
+			logv("Disconnecting from server...");
 			out.writeUTF(DISCONNECT_DELIM);
 			client.close();
 			log("Disconnected");
 		}catch(IOException e){e.printStackTrace();}
 	}
-	//TODO: Separate output stream for UI logging? i.e. not standard out
+
+	/**
+	 * @param b True to enable timestamps in server messages, False to disable
+	 */
+	public void useTimestamps(Boolean b){this.timestamps = b;}
+
+	/**
+	 * @param b True to enable (more) verbose logging
+	 */
+	public void verbose(Boolean b){this.verbose = b;}
+
+	/**
+	 * Will only print if verbose(true) has been called
+	 */
+	private void logv(String msg){if(verbose) log(msg);}
+
+	/**
+	 * @param msg Message to log to standard output
+	 */
 	private void log(String msg){
-		System.out.println("["+new java.sql.Timestamp(System.currentTimeMillis()) +" Client] "+msg);
+		System.out.println("[" + ( (timestamps)?new Timestamp(System.currentTimeMillis()) + " ":"") + "Client] " + msg);
 	}
 }
