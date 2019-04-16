@@ -8,24 +8,23 @@ import java.util.Scanner;
 
 public class ClientDriver{
 	public static void main(String[] args){
-		if(args.length == 0){
-			System.out.println("Usage: ClientDriver address port [-v] [-t]");
+		//Number of arguments sanitation
+		if(args.length < 2 || args.length > 4){
+			if(args.length != 0){
+				System.out.println("ERR: Expected at two to four arguments, received " + args.length);
+			}
+			System.out.println("Usage: \"ClientDriver address port [-v] [-t]\"");
 			System.exit(1);
 		}
-		List<String> cmdargs = Arrays.asList(args);
-		Scanner s = new Scanner(System.in);
+		List<String> cmdargs = Arrays.asList(args);	//For order-agnostic checking of flags
+		Scanner s = new Scanner(System.in);			//For user input
 
-		Boolean sentinel = true;
-
-		String address = "localhost";
+		//Default assignments just because the try/catch doesn't guarantee an assignment and it makes
+		//my IDE angry. These will be reassigned or the program will exit.v
 		int port = 6066;
+		String address = args[0]; //Address should be first argument
 
-		if(args.length < 2 || args.length > 4){
-			System.out.println("ERR: Expected at two to four arguments, received " + args.length);
-			System.out.println("Usage: \"ClientDriver address port [-v] [-t]");
-		}
-
-		address = args[0];
+		//Parse port number
 		try{
 			port= Integer.parseInt(args[1]);
 		}catch(NumberFormatException e){
@@ -33,18 +32,22 @@ public class ClientDriver{
 			System.exit(1);
 		}
 
+		//Instantiate client
 		PalindromeCheckerClient client = new PalindromeCheckerClient(address, port);
+
+		//Evaluate flags
 		if(cmdargs.contains("-v")){ client.verbose(true); }
 		if(cmdargs.contains("-t")){ client.useTimestamps(true); }
 
+		//Run client
 		try{
-			client.connect();
-			String out;
-			while(true){
+			client.connect();	//Connect to specified addr and port
+			String out;			//String to send
+			while(true){		//Just keep prompting for input
 				System.out.print("String to check (END to quit): ");
 				out = s.nextLine();
-				if(out.equals("END")){ System.exit(1);}
 				client.send(out);
+				if(out.equals("END")){ System.exit(0);}	//Delim check
 			}
 		}catch(IOException e){
 			e.printStackTrace();
