@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"<Unnamed>","l":"ClientDriver"},{"p":"<Unnamed>","l":"PalindromeCheckerClient"},{"p":"<Unnamed>","l":"PalindromeCheckerServer"},{"p":"<Unnamed>","l":"ServerDriver"},{"p":"<Unnamed>","l":"TestDriver"}]
