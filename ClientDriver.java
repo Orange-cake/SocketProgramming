@@ -47,7 +47,10 @@ public class ClientDriver{
 				System.out.print("String to check (END to quit): ");
 				out = s.nextLine();
 				client.send(out);
-				if(out.equals("END")){ System.exit(0);}	//Delim check
+				if(out.equals("END")){ //Delim check
+					client.disconnect();
+					System.exit(0);
+				}
 			}
 		}catch(IOException e){
 			e.printStackTrace();
