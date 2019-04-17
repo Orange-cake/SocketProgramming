@@ -12,10 +12,10 @@ public class ServerDriver{
 			if(args.length != 0){
 				System.out.println("ERR: Expected 1 to 4 args, received " + args.length);
 			}
-			System.out.println("Usage: ServerDriver port [-v] [-t] [-time=timeout]");
+			System.out.println("Usage: ServerDriver port [-v] [-t] [-time timeout]");
 			System.exit(0);
 		}
-		String timeoutStr = "-time="; //CLI argument for timeout duration
+		String timeoutStr = "-time"; 	//CLI argument for timeout duration
 		List<String> cmdargs = Arrays.asList(args);	//For order-agnostic checking of flags
 
 		//Default assignment just because the try/catch doesn't guarantee an assignment and it makes
@@ -32,16 +32,19 @@ public class ServerDriver{
 
 		//Evaluate the flags and run the server
 		try{
-			int timeout = 0;	//If not given, timeout is infinite
+			int timeout = 0;		//If not given, timeout is infinite
+
 			//Parse timeout
 			if(cmdargs.contains(timeoutStr)){
-				timeout = Integer.parseInt(args[cmdargs.indexOf(timeoutStr)].substring(timeoutStr.length()));
+				timeout = Integer.parseInt(args[cmdargs.indexOf(timeoutStr) + 1]);
 			}
-			//Instantiate server
+
 			PalindromeCheckerServer server = new PalindromeCheckerServer(port, timeout);
+
 			//Evaluate flags
 			if(cmdargs.contains("-v")){ server.verbose(true); }
 			if(cmdargs.contains("-t")){ server.useTimestamps(true); }
+
 			server.start();
 		}catch(IOException e){
 			e.printStackTrace();

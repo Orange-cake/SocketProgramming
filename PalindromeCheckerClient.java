@@ -14,23 +14,23 @@ public class PalindromeCheckerClient{
 	private Socket 				client;
 	private DataOutputStream 	out;
 	private DataInputStream 	in;
-	private final String 		DISCONNECT_DELIM;
 	private Boolean 			timestamps = false;
 	private Boolean 			verbose = false;
 
-	public PalindromeCheckerClient(String serverName, int serverPort, String delim){
+	public PalindromeCheckerClient(String serverName, int serverPort){
 		this.name = serverName;
 		this.port = serverPort;
-		this.DISCONNECT_DELIM = delim;
-	}
-	public PalindromeCheckerClient(String serverName, int serverPort){
-		this(serverName, serverPort, "END");
 	}
 
 	public void connect()throws IOException{
 		try{
 			logv("Connecting to " + this.name + " on port " + this.port);
-			client = new Socket(this.name, this.port);
+			try{
+				client = new Socket(this.name, this.port);
+			}catch(ConnectException e){
+				log("Connection refused, is the server running?");
+				System.exit(1);
+			}
 			log("Connected to " + client.getRemoteSocketAddress());
 
 			OutputStream toServer = client.getOutputStream();
@@ -50,14 +50,13 @@ public class PalindromeCheckerClient{
 	 */
 	public void send(String message)throws IOException{
 		try{
-			log("Writing '" + message + "' to server...");
-			out.writeUTF(message);
-			logv("Wrote: '" + message + "'");
+			logv("Writing '" + message + "' to server...");
 
-			InputStream fromServer = client.getInputStream();
-			DataInputStream in = new DataInputStream(fromServer);
+			out.writeUTF(message);
+			log("Wrote: '" + message + "'");
 
 			String lastRead = in.readUTF();
+
 			log("Server reply: '" + lastRead + "'");
 		}catch(IOException e){ e.printStackTrace(); }
 	}
@@ -65,7 +64,6 @@ public class PalindromeCheckerClient{
 	public void disconnect()throws IOException{
 		try{
 			logv("Disconnecting from server...");
-			out.writeUTF(DISCONNECT_DELIM);
 			client.close();
 			log("Disconnected");
 		}catch(IOException e){e.printStackTrace();}

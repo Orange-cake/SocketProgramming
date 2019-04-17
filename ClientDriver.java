@@ -9,14 +9,15 @@ import java.util.Scanner;
 public class ClientDriver{
 	public static void main(String[] args){
 		//Number of arguments sanitation
-		if(args.length < 2 || args.length > 4){
+		if(args.length < 2 || args.length > 6){
 			if(args.length != 0){
-				System.out.println("ERR: Expected at two to four arguments, received " + args.length);
+				System.out.println("ERR: Too many or too few arguments");
 			}
-			System.out.println("Usage: \"ClientDriver address port [-v] [-t]\"");
+			System.out.println("Usage: \"ClientDriver address port [-delim \"DISCONNECT_DELIM\"] [-v] [-t]\"");
 			System.exit(1);
 		}
 		List<String> cmdargs = Arrays.asList(args);	//For order-agnostic checking of flags
+		String delimStr = "-delim"; 				//CLI argument for disconnect delim
 		Scanner s = new Scanner(System.in);			//For user input
 
 		//Default assignments just because the try/catch doesn't guarantee an assignment and it makes
@@ -32,6 +33,12 @@ public class ClientDriver{
 			System.exit(1);
 		}
 
+		//Parse delim
+		String delim = "END"; //Default to END
+		if(cmdargs.contains(delimStr)){
+			delim = args[cmdargs.indexOf(delimStr) + 1];
+		}
+
 		//Instantiate client
 		PalindromeCheckerClient client = new PalindromeCheckerClient(address, port);
 
@@ -44,10 +51,10 @@ public class ClientDriver{
 			client.connect();	//Connect to specified addr and port
 			String out;			//String to send
 			while(true){		//Just keep prompting for input
-				System.out.print("String to check (END to quit): ");
+				System.out.print("String to check (\"" + delim + "\" to quit): ");
 				out = s.nextLine();
 				client.send(out);
-				if(out.equals("END")){ //Delim check
+				if(out.equals(delim)){
 					client.disconnect();
 					System.exit(0);
 				}

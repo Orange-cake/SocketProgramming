@@ -11,8 +11,7 @@ public class PalindromeCheckerServer extends Thread {
 	private ServerSocket serverSocket;
 	private int port;
 	private String lastInput;
-	private String lastOutput;
-	private final String DISCONNECT_DELIM = "END";
+	//private String lastOutput;
 
 	private Boolean verbose = false;
 	private Boolean timestamps = false;
@@ -52,24 +51,24 @@ public class PalindromeCheckerServer extends Thread {
 			DataOutputStream out = new DataOutputStream(server.getOutputStream());
 
 			while(true){
-				lastInput = in.readUTF();
-				log("Received message: " + lastInput);
-				if(lastInput.equals(DISCONNECT_DELIM)){
-					logv("Delim received, closing socket");
-					server.close();
+				try{
+					lastInput = in.readUTF();
+				}catch(EOFException eof){
+					log("Client disconnected, shutting down");
 					break;
+				}
+				log("Received message: " + lastInput);
+				logv("\tFrom: " + server.getRemoteSocketAddress());
+
+				if(checkPalindrome(lastInput)){
+					log("Input is palindrome");
+					out.writeUTF(lastInput + " is a palindrome");
 				}else{
-					logv("Checking for palindrome...");
-					if(checkPalindrome(lastInput)){
-						logv("Input is palindrome");
-						out.writeUTF(lastInput + " is a palindrome");
-					}else{
-						logv("Input is not a palindrome");
-						out.writeUTF(lastInput + " is not a palindrome");
-					}
+					log("Input is not a palindrome");
+					out.writeUTF(lastInput + " is not a palindrome");
 				}
 			}
-		}catch(SocketTimeoutException s){ 	log("Socket timed out");
+		}catch(SocketTimeoutException t){ 	log("Socket timed out");
 		}catch(SocketException s){			log("Socket closed");
 		}catch(IOException e){				e.printStackTrace();}
 
