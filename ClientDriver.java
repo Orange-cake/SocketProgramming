@@ -53,11 +53,12 @@ public class ClientDriver{
 			while(true){		//Just keep prompting for input
 				System.out.print("String to check (\"" + delim + "\" to quit): ");
 				out = s.nextLine();
-				client.send(out);
+
 				if(out.equals(delim)){
 					client.disconnect();
 					System.exit(0);
 				}
+				client.send(out);
 			}
 		}catch(IOException e){
 			e.printStackTrace();
