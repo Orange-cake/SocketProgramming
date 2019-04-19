@@ -3,34 +3,22 @@
 Code by John Heinlein, testing by Ian Charissis
 ## How to Use:
 
-### TestDriver
-```
-Usage:
-	TestDriver port [-v] [-t]
-		 port: Port to listen on
-		   -v: Verbose logging
-                   -t: Enable timestamps in logs
-```
-
-TestDriver will inialize a client and server and send an array of test strings to the server over localhost on the given port.
-
 ### ServerDriver
 ```
-Usage: java ServerDriver port [-v] [-t] [-time timeout]
-	         port: Port to listen on 
-	           -v: Verbose logging
+Usage: java PalindromeCheckerServer [-port=portnum] [-v] [-t] [-timeout=timeout]
+	      portnum: Port to listen on (Defaults to 1200)
+	           -v: Enable more verbose logging
 		   -t: Enable timestamps in logs
-	-time timeout: Enable a timeout of "timeout" milliseconds of no input before the socket is closed. Defualts to no timeout.
+	-time=timeout: Enable a timeout of "timeout" milliseconds of no input before the socket is closed. Defualts to no timeout.
 ```
-The server object implements Thread and functions properly in my cursory testing of having a multithreaded driver, but this is yet unimplemented.
+Running with no arguments will run a server on port1200
 ### ClientDriver
 ```
-Usage: java ClientDriver address port [-delim DISCONNECT_DELIM] [-v] [-t]
-	      address: IP Address to connect to
-		 port: Port to connect to
-		   -v: Verbose logging
+Usage: java PalindromeCheckerClient [-port=portnum] address [-v] [-t]
+	      address: Address to connect to (defaults to localhost)
+	-port=portnum: Port to connect to (defaults to 1200)
+		   -v: Enable more verbose logging
 		   -t: Enable timestamps in logs
-	       -delim: If the input matches this string, the client and server will shut down gracefully. If ommited, this defaults to "END"
 ```
 
 The client will continually prompt the user for a string to check until the input matches the delim.
