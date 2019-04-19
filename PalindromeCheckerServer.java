@@ -4,6 +4,10 @@
 import java.net.*;
 import java.io.*;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * PalindromeCheckerServer represents a socket on a thread, handling one client over that port
  */
@@ -16,6 +20,40 @@ public class PalindromeCheckerServer extends Thread {
 	private Boolean verbose = false;
 	private Boolean timestamps = false;
 
+	public static void main(String[] args){
+		//If no arguments are given, print usage and exit gracefully
+		if(args.length > 4){
+			System.out.println("Usage: PalindromeCheckerServer [-port=portnum] [-v] [-t] [-timeout=timeout]");
+			System.exit(0);
+		}
+		List<String> cmdargs = Arrays.asList(args);	//For order-agnostic checking of flags
+
+		//Parse port and timeout
+		int port = 1200;
+		int timeout = 0;
+		Pattern portReg = Pattern.compile("-port=[0-9]+");
+		Pattern timeReg = Pattern.compile("-timeout=[0-9]+");
+		for (String s:cmdargs) {
+			if(portReg.matcher(s).matches()){
+				port = Integer.parseInt(s.substring(6));
+			}if(timeReg.matcher(s).matches()){
+				timeout = Integer.parseInt(s.substring(9));
+			}
+		}
+
+		//Evaluate the flags and run the server
+		try{
+			PalindromeCheckerServer server = new PalindromeCheckerServer(port, timeout);
+
+			//Evaluate flags
+			if(cmdargs.contains("-v")){ server.verbose(true); }
+			if(cmdargs.contains("-t")){ server.useTimestamps(true); }
+
+			server.start();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Create a new server thread
 	 * @param port Port to open on server
